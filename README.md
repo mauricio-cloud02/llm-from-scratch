@@ -1,6 +1,8 @@
 # LLM Project: GPT-Style Language Modeling Pipeline
 
-This repository implements a compact, end-to-end GPT-style language modeling pipeline over *The Verdict* dataset, covering tokenization, dataset construction, Transformer components, training/evaluation utilities, and text generation. The code is intentionally minimal and readable, with smoke tests for each stage so you can validate behavior incrementally before scaling experiments.
+This repository contains a from-scratch implementation of a GPT-style decoder-only Transformer in PyTorch, built following Sebastian Raschka’s *Build a Large Language Model from Scratch*.
+
+The goal of this project is to understand the internal mechanics of Transformer-based language models, including training dynamics, architectural components, and sampling behavior, without relying on high-level pretrained APIs. covering tokenization, dataset construction, Transformer components, training/evaluation utilities, and text generation. The code is intentionally minimal and readable, with smoke tests for each stage so you can validate behavior incrementally before scaling experiments.
 
 ## Implemented Components
 
@@ -81,11 +83,9 @@ llm-project/
 
 ## Installation Instructions
 
+Create and activate a virtual environment, then install dependencies:
 ```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install --upgrade pip
-pip install torch tiktoken matplotlib
+pip install -r requirements.txt
 ```
 
 ## Quick Sanity Checks
@@ -106,7 +106,7 @@ This generates:
 - `data/the-verdict.tokens.pt`
 - `data/the-verdict.tokens.meta.json`
 
-## Training Instructions
+## Training Instructions (Toy Configuration)
 
 ```bash
 python -m src.run_train_verdict
@@ -137,73 +137,47 @@ plot_loss_curves(train_losses, val_losses, tokens_seen)
 
 ## Text Generation
 
-```python
-import torch
-from src.gpt_model import GPTModel
+Generation supports:
+
+Greedy decoding
+
+Temperature scaling
+
+Top-k filtering
+
+Multinomial sampling
+
+Example usage inside Python:
+
+
+``` python
 from src.generate import generate
-from src.tokenizer_bpe import BPETokenizer
-from src import config
-
-cfg = dict(config.MODEL_CFG)
-model = GPTModel(cfg)
-tokenizer = BPETokenizer("gpt2")
-
-prompt = "Every effort moves you"
-idx = tokenizer.encode_to_tensor(prompt).unsqueeze(0)
-
-out = generate(
-    model=model,
-    idx=idx,
-    max_new_tokens=40,
-    context_size=cfg["context_length"],
-    temperature=0.8,
-    top_k=40,
-)
-
-print(tokenizer.decode(out[0].tolist()))
-```
-
-You can also run the interactive script:
-
-```bash
-python -m src.demo_generate
 ```
 
 ## Configuration
 
-Primary configuration lives in `src/config.py`.
+Model and training hyperparameters are stored in:
 
-Key values used across scripts include:
+src/config.py
 
-- `MODEL_CFG` (or compatible model dict)
-- `TRAIN_CONTEXT_LENGTH` (fallback to `CONTEXT_LENGTH`)
-- `TRAIN_STRIDE` (fallback to `STRIDE`)
-- `BATCH_SIZE`
-- `LEARNING_RATE`
+configs/
 
-If `MODEL_CFG` is not present, some scripts use minimal fallbacks based on available constants and token metadata.
+The repository distinguishes between:
+
+A small toy model (fast local training)
+
+A GPT-2–compatible architecture configuration
 
 ## Notes
 
-- Run commands from the project root (`llm-project/`) so `src` module imports resolve correctly.
-- If token files are missing, run tokenization first:
+Training is performed on a small demonstration dataset.
 
-```bash
-python -m src.tokenize_verdict
-```
+The focus of this implementation is architectural clarity and reproducibility rather than large-scale performance.
 
-- If `tiktoken` is missing, install it:
-
-```bash
-pip install tiktoken
-```
-
-- If `matplotlib` is missing (for curve plotting), install it:
-
-```bash
-pip install matplotlib
-```
+The model architecture is compatible with GPT-2 configurations.
 
 ## Research Context
 
-This codebase follows a pedagogical, component-by-component GPT construction approach inspired by modern LLM training walkthroughs (notably the Raschka-style progression): tokenizer → dataset → embeddings → attention/MLP blocks → full decoder model → loss/training/evaluation → generation. It is intended for learning, controlled experimentation, and reproducible debugging of core language-model building blocks rather than large-scale production pretraining.
+This codebase follows a pedagogical, component-by-component GPT construction approach: tokenizer → dataset → embeddings → attention/MLP blocks → full decoder model → loss/training/evaluation → generation. It is intended for learning, controlled experimentation, and reproducible debugging of core language-model building blocks rather than large-scale production pretraining. 
+
+The goal was to examine the internal structure and training behavior of large language models directly, including attention mechanisms, loss dynamics, sampling strategies, and architectural trade-offs. By reconstructing the model pipeline end-to-end, this project provides a controlled environment for analyzing how design choices influence generation behavior and training stability.
