@@ -6,22 +6,19 @@ The goal of this project is to understand the internal mechanics of Transformer-
 
 ## Implemented Components
 
-- BPE tokenization using `tiktoken` (`src/tokenizer_bpe.py`)
-- UTF-8 data reading helpers (`src/data_reading.py`)
-- Token stream dataset for next-token prediction (`src/dataset_gpt.py`)
-- Train/validation token splitting and loaders (`src/data_split.py`, `src/make_splits_and_loaders.py`)
-- Token and absolute positional embeddings (`src/embeddings.py`)
-- Causal multi-head self-attention (`src/attention.py`)
-- Manual GPT-style `LayerNorm` (`src/layernorm.py`)
-- Manual GELU tanh approximation (`src/gelu.py`)
-- GPT-style feed-forward network (`src/feedforward.py`)
-- Transformer block (pre-norm + residuals) (`src/transformer_block.py`)
-- GPT model assembly (`src/gpt_model.py`)
-- Loss helpers for next-token LM (`src/next_token_loss.py`)
-- Training loop + evaluation helpers (`src/training.py`)
-- Text generation utility (greedy, temperature, top-k) (`src/generate.py`)
-- Plot utility for train/val loss curves (`src/plot_training_curves.py`)
-- Multiple smoke tests under `src/smoke_test_*.py`
+```plain text
+src/
+  attention.py
+  transformer_block.py
+  gpt_model.py
+  next_token_loss.py
+  training.py
+  generate.py
+  ...
+configs/
+artifacts/
+results/
+```
 
 ## Supported Hardware and Runtimes
 
@@ -49,8 +46,6 @@ llm-project/
 │   ├── the-verdict.txt
 │   ├── the-verdict.tokens.pt
 │   └── the-verdict.tokens.meta.json
-├── notebook/
-│   └── ch04.ipynb
 ├── results/
 ├── src/
 │   ├── __init__.py
@@ -158,9 +153,11 @@ from src.generate import generate
 
 Model and training hyperparameters are stored in:
 
+```bash
 src/config.py
 
 configs/
+```
 
 The repository distinguishes between:
 
